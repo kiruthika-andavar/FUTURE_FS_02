@@ -58,8 +58,8 @@ app.delete("/api/leads/:id", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+const PORT = process.env.PORT || 5000;
 
-// LISTEN LAST
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
+app.listen(PORT, () => {
+  console.log('Server running on port ${PORT}');
 });
