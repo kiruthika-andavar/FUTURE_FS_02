@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mini CRM</title>
+  <meta charset="UTF-8" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #4e73df, #1cc88a);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .card {
+      background: white;
+      width: 450px;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-size: 14px;
+      transition: 0.3s;
+    }
+
+    input:focus {
+      border-color: #4e73df;
+      outline: none;
+      box-shadow: 0 0 5px rgba(78,115,223,0.4);
+    }
+
+    .add-btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #4e73df, #224abe);
+      border: none;
+      color: white;
+      border-radius: 8px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .add-btn:hover {
+      transform: scale(1.03);
+      opacity: 0.9;
+    }
+
+    .lead-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f8f9fc;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .status {
+      background: #1cc88a;
+      color: white;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-size: 12px;
+      margin-right: 8px;
+    }
+
+    .delete-btn {
+      background: #e74a3b;
+      border: none;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .delete-btn:hover {
+      background: #c0392b;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <h2>Add Lead</h2>
+
+    <input type="text" id="name" placeholder="Name" />
+    <input type="email" id="email" placeholder="Email" />
+    <input type="text" id="phone" placeholder="Phone" />
+
+    <button class="add-btn" onclick="addLead()">Add Lead</button>
+
+    <h2 style="margin-top:25px;">All Leads</h2>
+    <div id="leadList"></div>
+  </div>
+
+<script>
+
+async function fetchLeads() {
+  const res = await fetch("/api/leads");
+  const leads = await res.json();
+
+  const leadList = document.getElementById("leadList");
+  leadList.innerHTML = "";
+
+  leads.forEach(lead => {
+    const div = document.createElement("div");
+    div.className = "lead-item";
+
+    div.innerHTML = `
+      <div>
+        <strong>${lead.name}</strong>
+      </div>
+      <div>
+        <span class="status">${lead.status}</span>
+        <button class="delete-btn" onclick="deleteLead('${lead._id}')">Delete</button>
+      </div>
+    `;
+
+    leadList.appendChild(div);
+  });
+}
+
+async function addLead() {
+  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
+  const phone = document.getElementById("phone").value;
+
+  await fetch("/api/leads", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, email, phone })
+  });
+
+  document.getElementById("name").value = "";
+  document.getElementById("email").value = "";
+  document.getElementById("phone").value = "";
+
+  fetchLeads();
+}
+
+async function deleteLead(id) {
+  await fetch(`/api/leads/${id}`, {
+    method: "DELETE"
+  });
+
+  fetchLeads();
+}
+
+fetchLeads();
+
+</script>
+
+</body>
+</html>
